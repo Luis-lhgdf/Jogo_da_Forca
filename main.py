@@ -6,11 +6,10 @@ class app:
     def __init__(self, page: ft.Page):
         self.page = page  # Define a página onde o jogo será exibido
         self.page.scroll = ft.ScrollMode.AUTO  # Define o modo de rolagem da página
-        self.page.bgcolor = ft.colors.BROWN_600  # Define a cor de fundo da página
 
         # Lista de palavras disponíveis para o jogo
         self.available_words = ["python", "flet", "programador", "aventureiro"]
-        # Escolhe uma palavra aleatória da lista e a converte para maiúsculas
+        # Escolhe uma palavra aleatória da lista e a converte para maiúsculas'
         self.choiced = random.choice(self.available_words).upper()
 
         # Chama o método para criar a interface do jogo
@@ -115,7 +114,7 @@ class app:
             image_src="images/keyboard.png",
             image_repeat=ft.ImageRepeat.NO_REPEAT,
             image_fit=ft.ImageFit.FILL,
-            padding=ft.padding.only(top=150, left=45, right=45, bottom=50),
+            padding=ft.padding.only(top=200, left=10, right=10, bottom=50),
             content=ft.ResponsiveRow(
                 columns=10,
                 alignment=ft.MainAxisAlignment.CENTER,
@@ -154,11 +153,18 @@ class app:
         self.scene = ft.Image(col=12, src="images/scene.png")
 
         # Define o layout da página com os contêineres e a imagem de fundo
-        self.layout = ft.ResponsiveRow(
-            columns=10,
-            controls=[self.scene, self.game, self.keyboard, self.scene],
-            alignment=ft.MainAxisAlignment.CENTER,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        self.layout = ft.Container(
+            padding=ft.padding.all(0),
+            margin=ft.margin.all(0),
+            image_src="images/background.png",
+            image_fit=ft.ImageFit.COVER,
+            image_repeat=ft.ImageRepeat.NO_REPEAT,
+            content=ft.ResponsiveRow(
+                columns=10,
+                controls=[self.scene, self.game, self.keyboard, self.scene],
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
         )
 
         # Adiciona o layout à página
@@ -200,7 +206,7 @@ class app:
     # Método para criar o contêiner de uma letra da palavra a ser adivinhada
     def letter_to_guess(self, letter):
         return ft.Container(
-            bgcolor=ft.colors.AMBER_500,
+            bgcolor=ft.colors.BROWN_700,
             height=50,
             width=50,
             border_radius=ft.border_radius.all(5),
