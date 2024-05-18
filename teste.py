@@ -33,12 +33,12 @@ def main(page: ft.Page):
                         content=ft.ResponsiveRow(
                             alignment=ft.MainAxisAlignment.CENTER,
                             vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                            col=12,
+                            col=10,
                             width=500,
                             height=500,
                             controls=[
                                 ft.Text(
-                                    col=12,
+                                    col=10,
                                     text_align=ft.TextAlign.CENTER,
                                     spans=[
                                         ft.TextSpan(
@@ -58,7 +58,7 @@ def main(page: ft.Page):
                                     ],
                                 ),
                                 ft.Text(
-                                    col=6,
+                                    col=5,
                                     text_align=ft.TextAlign.CENTER,
                                     spans=[
                                         ft.TextSpan(
@@ -71,7 +71,7 @@ def main(page: ft.Page):
                                     ],
                                 ),
                                 ft.Text(
-                                    col=6,
+                                    col=5,
                                     text_align=ft.TextAlign.CENTER,
                                     spans=[
                                         ft.TextSpan(
@@ -84,7 +84,8 @@ def main(page: ft.Page):
                                     ],
                                 ),
                                 ft.Container(
-                                    col=6,
+                                    bgcolor=ft.colors.with_opacity(0.7, "#4F7550"),
+                                    col=5,
                                     content=ft.Column(
                                         controls=[
                                             ft.TextButton(col=2, text="Animais"),
@@ -96,10 +97,14 @@ def main(page: ft.Page):
                                     ),
                                 ),
                                 ft.Container(
-                                    col=6,
+                                    bgcolor=ft.colors.with_opacity(0.7, "#4E3725"),
+                                    col=5,
                                     content=ft.Column(
                                         controls=[
-                                            ft.TextButton(col=2, text="Facil"),
+                                            ft.TextButton(
+                                                col=2,
+                                                text="Facil",
+                                            ),
                                             ft.TextButton(col=2, text="Medio"),
                                             ft.TextButton(col=2, text="Dificil"),
                                         ],
@@ -108,21 +113,32 @@ def main(page: ft.Page):
                                     ),
                                 ),
                                 ft.Container(
-                                    col=6,
+                                    margin=ft.margin.only(top=50),
+                                    col=5,
                                     content=ft.Text(
-                                        col=6,
+                                        col=5,
                                         text_align=ft.TextAlign.CENTER,
                                         spans=[
                                             ft.TextSpan(
-                                                text="PLAY GAME",
+                                                text="PLAY",
                                                 style=ft.TextStyle(
                                                     color="#4F7550",
-                                                    size=30,
+                                                    size=50,
                                                 ),
-                                            )
+                                            ),
+                                            ft.TextSpan(
+                                                text="GAME",
+                                                style=ft.TextStyle(
+                                                    color="#4E3725",
+                                                    size=50,
+                                                ),
+                                            ),
                                         ],
                                     ),
-                                    on_click=True,
+                                    ink=True,
+                                    on_click=lambda e: print(
+                                        "Clickable with Ink clicked!"
+                                    ),
                                 ),
                             ],
                         ),

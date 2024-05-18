@@ -5,49 +5,52 @@ import random
 class app:
     def __init__(self, page: ft.Page):
         self.page = page  # Define a página onde o jogo será exibido
-        self.page.scroll = ft.ScrollMode.AUTO  # Define o modo de rolagem da página
 
         # Lista de palavras disponíveis para o jogo
         self.available_words = ["python", "flet", "programador", "aventureiro"]
         # Escolhe uma palavra aleatória da lista e a converte para maiúsculas'
         self.choiced = random.choice(self.available_words).upper()
 
-        # Chama o método para criar a interface do jogo
-        self.view_game()
+        self.page.fonts = {
+            "TROPICAN": "fonts/TROPICAN.ttf",
+        }
 
-    # Método para criar a interface do jogo
-    def view_game(self):
-        # Cria os diálogos para o vencedor e o game over
+        self.page.theme = ft.Theme(font_family="TROPICAN")
+
         self.create_dialogs()
-        # Cria os elementos do jogo (imagem do enforcado, palavra a ser adivinhada)
-        self.create_game_elements()
-        # Cria o teclado virtual
-        self.create_keyboard()
-        # Cria o layout da página
         self.create_layout()
 
     # Método para criar os diálogos do jogo
     def create_dialogs(self):
         # Cria o diálogo para o vencedor
         self.winner = self.create_dialog(
-            title="PARABENS VOCE ACERTOU!!!",
-            content="QUER TENTAR NOVAMENTE?",
+            title="PARABENS VOCE GANHOU",
+            content="Quer Jogar novamente?",
             on_click=self.restart_game,
         )
 
         # Cria o diálogo para o game over
         self.game_over = self.create_dialog(
             title="GAME OVER",
-            content="QUER TENTAR NOVAMENTE?",
+            content="Quer tentar novamente?",
             on_click=self.restart_game,
         )
 
     # Método para criar um diálogo genérico
     def create_dialog(self, title, content, on_click):
         return ft.AlertDialog(
+            bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
             open=True,  # Define o diálogo como aberto
-            title=ft.Text(value=title),  # Define o título do diálogo
-            content=ft.Text(value=content),  # Define o conteúdo do diálogo
+            title=ft.Text(
+                value=title,
+                text_align=ft.TextAlign.CENTER,
+                size=40,
+            ),  # Define o título do diálogo
+            content=ft.Text(
+                value=content,
+                text_align=ft.TextAlign.CENTER,
+                size=30,
+            ),  # Define o conteúdo do diálogo
             content_padding=ft.padding.all(
                 30
             ),  # Define o preenchimento interno do conteúdo
@@ -55,27 +58,79 @@ class app:
                 10
             ),  # Define o preenchimento externo do conteúdo
             modal=True,  # Define o diálogo como modal (bloqueia a interação com o resto da página)
-            shape=ft.RoundedRectangleBorder(radius=5),  # Define a forma do diálogo
+            shape=ft.RoundedRectangleBorder(radius=10),  # Define a forma do diálogo
             actions=[  # Define as ações disponíveis no diálogo (botões)
-                ft.TextButton(
-                    text="SAIR",
-                    style=ft.ButtonStyle(color=ft.colors.RED),
-                    on_click=self.close_game,  # Define a função a ser executada quando o botão é clicado
-                ),
-                ft.TextButton(
-                    text="NOVO JOGO",
-                    style=ft.ButtonStyle(
-                        color=ft.colors.WHITE, bgcolor=ft.colors.GREEN
+                ft.Container(
+                    margin=ft.margin.only(top=50),
+                    col=5,
+                    content=ft.Text(
+                        col=5,
+                        text_align=ft.TextAlign.CENTER,
+                        spans=[
+                            ft.TextSpan(
+                                text="SAIR",
+                                style=ft.TextStyle(
+                                    color="#4E3725",
+                                    size=50,
+                                ),
+                            ),
+                        ],
                     ),
-                    on_click=on_click,  # Define a função a ser executada quando o botão é clicado
+                    ink=True,
+                    on_click=self.menu,
+                ),
+                ft.Container(
+                    margin=ft.margin.only(top=50),
+                    col=5,
+                    content=ft.Text(
+                        col=5,
+                        text_align=ft.TextAlign.CENTER,
+                        spans=[
+                            ft.TextSpan(
+                                text="CONTINUAR",
+                                style=ft.TextStyle(
+                                    color="#4F7550",
+                                    size=50,
+                                ),
+                            ),
+                        ],
+                    ),
+                    ink=True,
+                    on_click=on_click,
                 ),
             ],
             actions_alignment=ft.MainAxisAlignment.CENTER,  # Alinha as ações no centro do diálogo
         )
 
     # Método para criar os elementos do jogo
-    def create_game_elements(self):
-        # Cria a imagem do enforcado
+
+    # Método para criar um botão do teclado virtual
+    def create_keyboard_button(self, letter):
+
+        return ft.Container(
+            col={"xs": 1, "lg": 1},
+            border_radius=ft.border_radius.all(5),
+            content=ft.Text(
+                value=letter,
+                color=ft.colors.WHITE,
+                size=30,
+                text_align=ft.TextAlign.CENTER,
+                weight=ft.FontWeight.BOLD,
+            ),
+            gradient=ft.LinearGradient(
+                begin=ft.alignment.top_center,
+                end=ft.alignment.bottom_center,
+                colors=[ft.colors.AMBER, ft.colors.DEEP_ORANGE],
+            ),
+            on_click=self.validate_letter,  # Define a função a ser executada quando o botão é clicado
+        )
+
+    # Método para criar o layout da página
+    def create_layout(self):
+        # Cria a imagem de fundo da cena
+        self.scene = ft.Image(col=12, src="images/scene.png")
+        self.tiki = ft.Image(col=3, src="images/tiki.png")
+
         self.victim = ft.Image(
             data=0,
             src="images/hangman_0.png",
@@ -104,9 +159,126 @@ class app:
             ),
         )
 
-    # Método para criar o teclado virtual
-    def create_keyboard(self):
-        # Layout do teclado conforme ABNT
+        self.start_game = ft.Container(
+            col=6,
+            border_radius=ft.border_radius.all(20),
+            bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
+            # image_src="images/keyboard_2.png",
+            # image_fit=ft.ImageFit.CONTAIN,
+            content=ft.ResponsiveRow(
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                col=10,
+                width=500,
+                height=500,
+                controls=[
+                    ft.Text(
+                        col=10,
+                        text_align=ft.TextAlign.CENTER,
+                        spans=[
+                            ft.TextSpan(
+                                text="HANG",
+                                style=ft.TextStyle(
+                                    color="#4F7550",
+                                    size=70,
+                                ),
+                            ),
+                            ft.TextSpan(
+                                text="MAN",
+                                style=ft.TextStyle(
+                                    color="#4E3725",
+                                    size=70,
+                                ),
+                            ),
+                        ],
+                    ),
+                    ft.Text(
+                        col=5,
+                        text_align=ft.TextAlign.CENTER,
+                        spans=[
+                            ft.TextSpan(
+                                text="SELECT THEME",
+                                style=ft.TextStyle(
+                                    color="#4F7550",
+                                    size=30,
+                                ),
+                            )
+                        ],
+                    ),
+                    ft.Text(
+                        col=5,
+                        text_align=ft.TextAlign.CENTER,
+                        spans=[
+                            ft.TextSpan(
+                                text="SELECT DIFFICULT",
+                                style=ft.TextStyle(
+                                    color="#4E3725",
+                                    size=30,
+                                ),
+                            )
+                        ],
+                    ),
+                    ft.Container(
+                        border_radius=10,
+                        bgcolor=ft.colors.with_opacity(0.7, "#4F7550"),
+                        col=5,
+                        content=ft.Column(
+                            controls=[
+                                ft.TextButton(col=2, text="Animais"),
+                                ft.TextButton(col=2, text="Cidade"),
+                                ft.TextButton(col=2, text="Futebol"),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                    ),
+                    ft.Container(
+                        border_radius=10,
+                        bgcolor=ft.colors.with_opacity(0.7, "#4E3725"),
+                        col=5,
+                        content=ft.Column(
+                            controls=[
+                                ft.TextButton(
+                                    col=2,
+                                    text="Facil",
+                                ),
+                                ft.TextButton(col=2, text="Medio"),
+                                ft.TextButton(col=2, text="Dificil"),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                    ),
+                    ft.Container(
+                        margin=ft.margin.only(top=50),
+                        col=5,
+                        content=ft.Text(
+                            col=5,
+                            text_align=ft.TextAlign.CENTER,
+                            spans=[
+                                ft.TextSpan(
+                                    text="PLAY",
+                                    style=ft.TextStyle(
+                                        color="#4F7550",
+                                        size=50,
+                                    ),
+                                ),
+                                ft.TextSpan(
+                                    text="GAME",
+                                    style=ft.TextStyle(
+                                        color="#4E3725",
+                                        size=50,
+                                    ),
+                                ),
+                            ],
+                        ),
+                        ink=True,
+                        on_click=self.start_game_btn,
+                    ),
+                ],
+            ),
+        )
+
         abnt_keyboard_layout = "QWERTYUIOPASDFGHJKLÇZXCVBNM"
 
         self.keyboard = ft.Container(
@@ -126,44 +298,37 @@ class app:
             ),
         )
 
-    # Método para criar um botão do teclado virtual
-    def create_keyboard_button(self, letter):
-
-        return ft.Container(
-            col={"xs": 1, "lg": 1},
-            border_radius=ft.border_radius.all(5),
-            content=ft.Text(
-                value=letter,
-                color=ft.colors.WHITE,
-                size=30,
-                text_align=ft.TextAlign.CENTER,
-                weight=ft.FontWeight.BOLD,
-            ),
-            gradient=ft.LinearGradient(
-                begin=ft.alignment.top_center,
-                end=ft.alignment.bottom_center,
-                colors=[ft.colors.AMBER, ft.colors.DEEP_ORANGE],
-            ),
-            on_click=self.validate_letter,  # Define a função a ser executada quando o botão é clicado
-        )
-
-    # Método para criar o layout da página
-    def create_layout(self):
-        # Cria a imagem de fundo da cena
-        self.scene = ft.Image(col=12, src="images/scene.png")
+        self.view_game = [
+            [self.tiki, self.start_game, self.tiki],
+            [self.scene, self.game, self.keyboard, self.scene],
+        ]
 
         # Define o layout da página com os contêineres e a imagem de fundo
         self.layout = ft.Container(
             padding=ft.padding.all(0),
             margin=ft.margin.all(0),
+            expand=True,
             image_src="images/background.png",
             image_fit=ft.ImageFit.COVER,
             image_repeat=ft.ImageRepeat.NO_REPEAT,
             content=ft.ResponsiveRow(
-                columns=10,
-                controls=[self.scene, self.game, self.keyboard, self.scene],
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=self.view_game[0],
+            ),
+        )
+
+        self.layout2 = ft.Container(
+            padding=ft.padding.all(0),
+            margin=ft.margin.all(0),
+            expand=True,
+            image_src="images/background.png",
+            image_fit=ft.ImageFit.COVER,
+            image_repeat=ft.ImageRepeat.NO_REPEAT,
+            content=ft.ResponsiveRow(
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=self.view_game[1],
             ),
         )
 
@@ -221,13 +386,23 @@ class app:
 
     # Método para reiniciar o jogo
     def restart_game(self, e):
-        self.page.remove(self.layout)  # Remove o layout atual
+        self.page.remove(self.layout2)  # Remove o layout atual
         self.page.dialog.open = False  # Fecha o diálogo atual
         self.__init__(self.page)  # Reinicia o jogo
+        self.start_game_btn(None)
 
     # Método para fechar o jogo
     def close_game(self, e):
         self.page.window_destroy()  # Fecha a janela do jogo
+
+    def menu(self, e):
+        self.page.remove(self.layout2)  # Remove o layout atual
+        self.page.dialog.open = False  # Fecha o diálogo atual
+        self.__init__(self.page)  # Reinicia o jogo
+
+    def start_game_btn(self, e):
+        self.page.remove(self.layout)
+        self.page.add(self.layout2)
 
 
 # Função principal que inicia o jogo
