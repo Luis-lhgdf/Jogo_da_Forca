@@ -7,9 +7,72 @@ class app:
         self.page = page  # Define a página onde o jogo será exibido
 
         self.themes = {
-            "Animais": ["elefante", "girafa", "cachorro", "gato", "pato"],
-            "Cidade": ["São Paulo", "Rio-de-Janeiro", "Paris", "Londres", "Tóquio"],
-            "Futebol": ["Barcelona", "Real-Madrid", "Liverpool", "Bayern", "Juventus"],
+            "Animais": [
+                "elefante",
+                "girafa",
+                "cachorro",
+                "gato",
+                "pato",
+                "tigre",
+                "leao",
+                "zebra",
+                "hipopotamo",
+                "rinoceronte",
+                "leopardo",
+                "macaco",
+                "panda",
+                "urso",
+                "lobo",
+                "coala",
+                "suricato",
+                "camelo",
+                "gorila",
+                "pinguim",
+            ],
+            "Cidade": [
+                "Sao-Paulo",
+                "Rio-de-Janeiro",
+                "Paris",
+                "Londres",
+                "Toquio",
+                "Nova-York",
+                "Los-Angeles",
+                "Pequim",
+                "Moscou",
+                "Dubai",
+                "Sydney",
+                "Berlim",
+                "Roma",
+                "Istambul",
+                "Bangkok",
+                "Toronto",
+                "Chicago",
+                "Miami",
+                "Tehran",
+                "Hong-Kong",
+            ],
+            "Futebol": [
+                "Barcelona",
+                "Real-Madrid",
+                "Liverpool",
+                "Bayern",
+                "Juventus",
+                "Manchester-United",
+                "Chelsea",
+                "Manchester-City",
+                "Arsenal",
+                "Paris-Saint-Germain",
+                "Borussia-Dortmund",
+                "AC-Milan",
+                "Inter-de-Milao",
+                "Ajax",
+                "Atletico-de-Madrid",
+                "Tottenham",
+                "Napoli",
+                "Boca-Juniors",
+                "River-Plate",
+                "Flamengo",
+            ],
         }
 
         self.difficulty_levels = {
@@ -400,11 +463,12 @@ class app:
         self.__init__(self.page)  # Reinicia o jogo
 
     def start_game_btn(self, e):
-        self.choose_word()
-        self.word.controls = [self.letter_to_guess("_") for _ in self.choiced]
-        self.page.remove(self.layout)
-        self.page.add(self.layout2)
-        print("Palavra escolhida:", self.choiced)  # Print para depuração
+        if self.selected_theme and self.selected_difficulty:
+            self.choose_word()
+            self.word.controls = [self.letter_to_guess("_") for _ in self.choiced]
+            self.page.remove(self.layout)
+            self.page.add(self.layout2)
+            print("Palavra escolhida:", self.choiced)  # Print para depuração
 
     def radiogroup_theme(self, e):
         self.selected_theme = e.control.value
@@ -421,10 +485,7 @@ class app:
                 self.choiced = random.choice(filtered_words).upper()
             else:
                 self.choiced = random.choice(words).upper()
-        else:
-            self.choiced = random.choice(
-                ["PYTHON", "FLET", "PROGRAMADOR", "AVENTUREIRO"]
-            )
+
         print("Palavra escolhida no choose_word:", self.choiced)  # Print para depuração
 
 
