@@ -6,10 +6,26 @@ class app:
     def __init__(self, page: ft.Page):
         self.page = page  # Define a página onde o jogo será exibido
 
+        self.themes = {
+            "Animais": ["elefante", "girafa", "cachorro", "gato", "pato"],
+            "Cidade": ["São Paulo", "Rio-de-Janeiro", "Paris", "Londres", "Tóquio"],
+            "Futebol": ["Barcelona", "Real-Madrid", "Liverpool", "Bayern", "Juventus"],
+        }
+
+        self.difficulty_levels = {
+            "Facil": (4, 6),
+            "Medio": (6, 8),
+            "Dificil": (8, 12),
+        }
+
+        self.selected_theme = None
+        self.selected_difficulty = None
+
+        self.choiced = "PYTHON"
+
         # Lista de palavras disponíveis para o jogo
         self.available_words = ["python", "flet", "programador", "aventureiro"]
-        # Escolhe uma palavra aleatória da lista e a converte para maiúsculas'
-        self.choiced = random.choice(self.available_words).upper()
+        # Escolhe uma palavra aleatória da lista e a converte para maiúsculas
 
         self.page.fonts = {
             "TROPICAN": "fonts/TROPICAN.ttf",
@@ -24,20 +40,18 @@ class app:
     def create_dialogs(self):
         # Cria o diálogo para o vencedor
         self.winner = self.create_dialog(
-            title="PARABENS VOCE GANHOU",
-            content="Quer Jogar novamente?",
-            on_click=self.restart_game,
+            title="PARABÉNS, VOCÊ GANHOU!",
+            content="Quer jogar novamente?",
         )
 
         # Cria o diálogo para o game over
         self.game_over = self.create_dialog(
             title="GAME OVER",
             content="Quer tentar novamente?",
-            on_click=self.restart_game,
         )
 
     # Método para criar um diálogo genérico
-    def create_dialog(self, title, content, on_click):
+    def create_dialog(self, title, content):
         return ft.AlertDialog(
             bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
             open=True,  # Define o diálogo como aberto
@@ -68,26 +82,7 @@ class app:
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
-                                text="SAIR",
-                                style=ft.TextStyle(
-                                    color="#4E3725",
-                                    size=50,
-                                ),
-                            ),
-                        ],
-                    ),
-                    ink=True,
-                    on_click=self.menu,
-                ),
-                ft.Container(
-                    margin=ft.margin.only(top=50),
-                    col=5,
-                    content=ft.Text(
-                        col=5,
-                        text_align=ft.TextAlign.CENTER,
-                        spans=[
-                            ft.TextSpan(
-                                text="CONTINUAR",
+                                text="NOVO JOGO",
                                 style=ft.TextStyle(
                                     color="#4F7550",
                                     size=50,
@@ -96,7 +91,7 @@ class app:
                         ],
                     ),
                     ink=True,
-                    on_click=on_click,
+                    on_click=self.menu,
                 ),
             ],
             actions_alignment=ft.MainAxisAlignment.CENTER,  # Alinha as ações no centro do diálogo
@@ -142,7 +137,7 @@ class app:
         self.word = ft.Row(
             alignment=ft.MainAxisAlignment.CENTER,
             wrap=True,
-            controls=[self.letter_to_guess("_") for letter in self.choiced],
+            controls=[self.letter_to_guess("_") for _ in self.choiced],
         )
 
         # Cria o contêiner do jogo
@@ -210,7 +205,7 @@ class app:
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
-                                text="SELECT DIFFICULT",
+                                text="SELECT DIFFICULTY",
                                 style=ft.TextStyle(
                                     color="#4E3725",
                                     size=30,
@@ -220,33 +215,32 @@ class app:
                     ),
                     ft.Container(
                         border_radius=10,
-                        bgcolor=ft.colors.with_opacity(0.7, "#4F7550"),
+                        bgcolor=ft.colors.with_opacity(0.9, "#4F7550"),
                         col=5,
-                        content=ft.Column(
-                            controls=[
-                                ft.TextButton(col=2, text="Animais"),
-                                ft.TextButton(col=2, text="Cidade"),
-                                ft.TextButton(col=2, text="Futebol"),
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        content=ft.RadioGroup(
+                            content=ft.Column(
+                                [
+                                    ft.Radio(value="Animais", label="Animais"),
+                                    ft.Radio(value="Cidade", label="Cidade"),
+                                    ft.Radio(value="Futebol", label="Futebol"),
+                                ]
+                            ),
+                            on_change=self.radiogroup_theme,
                         ),
                     ),
                     ft.Container(
                         border_radius=10,
-                        bgcolor=ft.colors.with_opacity(0.7, "#4E3725"),
+                        bgcolor=ft.colors.with_opacity(0.9, "#4E3725"),
                         col=5,
-                        content=ft.Column(
-                            controls=[
-                                ft.TextButton(
-                                    col=2,
-                                    text="Facil",
-                                ),
-                                ft.TextButton(col=2, text="Medio"),
-                                ft.TextButton(col=2, text="Dificil"),
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        content=ft.RadioGroup(
+                            content=ft.Column(
+                                [
+                                    ft.Radio(value="Facil", label="Facil"),
+                                    ft.Radio(value="Medio", label="Medio"),
+                                    ft.Radio(value="Dificil", label="Dificil"),
+                                ]
+                            ),
+                            on_change=self.radiogroup_difficulty,
                         ),
                     ),
                     ft.Container(
@@ -257,16 +251,28 @@ class app:
                             text_align=ft.TextAlign.CENTER,
                             spans=[
                                 ft.TextSpan(
-                                    text="PLAY",
+                                    text="SAIR",
                                     style=ft.TextStyle(
-                                        color="#4F7550",
+                                        color="#4E3725",
                                         size=50,
                                     ),
                                 ),
+                            ],
+                        ),
+                        ink=True,
+                        on_click=self.close_game,
+                    ),
+                    ft.Container(
+                        margin=ft.margin.only(top=50),
+                        col=5,
+                        content=ft.Text(
+                            col=5,
+                            text_align=ft.TextAlign.CENTER,
+                            spans=[
                                 ft.TextSpan(
-                                    text="GAME",
+                                    text="CONTINUAR",
                                     style=ft.TextStyle(
-                                        color="#4E3725",
+                                        color="#4F7550",
                                         size=50,
                                     ),
                                 ),
@@ -279,7 +285,7 @@ class app:
             ),
         )
 
-        abnt_keyboard_layout = "QWERTYUIOPASDFGHJKLÇZXCVBNM"
+        abnt_keyboard_layout = "QWERTYUIOPASDFGHJKLÇZXCVBNM-"
 
         self.keyboard = ft.Container(
             col={"xs": 10, "lg": 5},
@@ -384,13 +390,6 @@ class app:
             ),
         )
 
-    # Método para reiniciar o jogo
-    def restart_game(self, e):
-        self.page.remove(self.layout2)  # Remove o layout atual
-        self.page.dialog.open = False  # Fecha o diálogo atual
-        self.__init__(self.page)  # Reinicia o jogo
-        self.start_game_btn(None)
-
     # Método para fechar o jogo
     def close_game(self, e):
         self.page.window_destroy()  # Fecha a janela do jogo
@@ -401,8 +400,32 @@ class app:
         self.__init__(self.page)  # Reinicia o jogo
 
     def start_game_btn(self, e):
+        self.choose_word()
+        self.word.controls = [self.letter_to_guess("_") for _ in self.choiced]
         self.page.remove(self.layout)
         self.page.add(self.layout2)
+        print("Palavra escolhida:", self.choiced)  # Print para depuração
+
+    def radiogroup_theme(self, e):
+        self.selected_theme = e.control.value
+
+    def radiogroup_difficulty(self, e):
+        self.selected_difficulty = e.control.value
+
+    def choose_word(self):
+        if self.selected_theme and self.selected_difficulty:
+            words = self.themes[self.selected_theme]
+            min_len, max_len = self.difficulty_levels[self.selected_difficulty]
+            filtered_words = [word for word in words if min_len <= len(word) <= max_len]
+            if filtered_words:
+                self.choiced = random.choice(filtered_words).upper()
+            else:
+                self.choiced = random.choice(words).upper()
+        else:
+            self.choiced = random.choice(
+                ["PYTHON", "FLET", "PROGRAMADOR", "AVENTUREIRO"]
+            )
+        print("Palavra escolhida no choose_word:", self.choiced)  # Print para depuração
 
 
 # Função principal que inicia o jogo
