@@ -53,8 +53,9 @@ jobs:
           ls -l
           echo "Listing contents of app directory for debugging:"
           ls -l app/
+          echo "Checking for errors in the flet build process:"
+          cat flet_build.log || echo "No log file found"
           exit 1
-        fi
 
     - name: Upload Artifact
       uses: actions/upload-pages-artifact@v3
