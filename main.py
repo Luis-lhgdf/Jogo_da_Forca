@@ -187,7 +187,18 @@ class app:
     def create_layout(self):
         # Cria a imagem de fundo da cena
         self.scene = ft.Image(col=12, src="images/scene.png")
-        self.tiki = ft.Image(col=3, src="images/tiki.png")
+        self.tiki = ft.Image(
+            col={
+                "xs": 12,
+                "sm": 12,
+                "md": 3,
+            },
+            src="images/tiki.png",
+            fit=ft.ImageFit.CONTAIN,
+            repeat=ft.ImageRepeat.NO_REPEAT,
+            height=200,
+        )
+        print(self.page.window_height)
 
         self.victim = ft.Image(
             data=0,
@@ -218,20 +229,26 @@ class app:
         )
 
         self.start_game = ft.Container(
-            col=6,
+            col={
+                "xs": 12,
+                "sm": 12,
+                "md": 6,
+            },
             border_radius=ft.border_radius.all(20),
             bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
-            # image_src="images/keyboard_2.png",
-            # image_fit=ft.ImageFit.CONTAIN,
+            padding=ft.padding.all(5),
+            expand=True,
             content=ft.ResponsiveRow(
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                col=10,
-                width=500,
-                height=500,
+                col=12,
                 controls=[
                     ft.Text(
-                        col=10,
+                        col={
+                            "xs": 12,
+                            "sm": 12,
+                            "md": 12,
+                        },
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
@@ -251,7 +268,11 @@ class app:
                         ],
                     ),
                     ft.Text(
-                        col=5,
+                        col={
+                            "xs": 12,
+                            "sm": 12,
+                            "md": 6,
+                        },
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
@@ -264,7 +285,11 @@ class app:
                         ],
                     ),
                     ft.Text(
-                        col=5,
+                        col={
+                            "xs": 12,
+                            "sm": 12,
+                            "md": 6,
+                        },
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
@@ -277,9 +302,13 @@ class app:
                         ],
                     ),
                     ft.Container(
+                        col={
+                            "xs": 6,
+                            "sm": 6,
+                            "md": 6,
+                        },
                         border_radius=10,
                         bgcolor=ft.colors.with_opacity(0.9, "#4F7550"),
-                        col=5,
                         content=ft.RadioGroup(
                             content=ft.Column(
                                 [
@@ -292,9 +321,13 @@ class app:
                         ),
                     ),
                     ft.Container(
+                        col={
+                            "xs": 6,
+                            "sm": 6,
+                            "md": 6,
+                        },
                         border_radius=10,
                         bgcolor=ft.colors.with_opacity(0.9, "#4E3725"),
-                        col=5,
                         content=ft.RadioGroup(
                             content=ft.Column(
                                 [
@@ -308,9 +341,12 @@ class app:
                     ),
                     ft.Container(
                         margin=ft.margin.only(top=50),
-                        col=5,
+                        col={
+                            "xs": 12,
+                            "sm": 6,
+                            "md": 6,
+                        },
                         content=ft.Text(
-                            col=5,
                             text_align=ft.TextAlign.CENTER,
                             spans=[
                                 ft.TextSpan(
@@ -327,13 +363,16 @@ class app:
                     ),
                     ft.Container(
                         margin=ft.margin.only(top=50),
-                        col=5,
+                        col={
+                            "xs": 12,
+                            "sm": 6,
+                            "md": 6,
+                        },
                         content=ft.Text(
-                            col=5,
                             text_align=ft.TextAlign.CENTER,
                             spans=[
                                 ft.TextSpan(
-                                    text="CONTINUAR",
+                                    text="JOGAR",
                                     style=ft.TextStyle(
                                         color="#4F7550",
                                         size=50,
@@ -355,7 +394,7 @@ class app:
             image_src="images/keyboard.png",
             image_repeat=ft.ImageRepeat.NO_REPEAT,
             image_fit=ft.ImageFit.FILL,
-            padding=ft.padding.only(top=200, left=10, right=10, bottom=50),
+            padding=ft.padding.only(top=200, left=50, right=50, bottom=50),
             content=ft.ResponsiveRow(
                 columns=10,
                 alignment=ft.MainAxisAlignment.CENTER,
