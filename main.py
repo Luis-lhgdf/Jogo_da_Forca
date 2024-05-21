@@ -95,7 +95,6 @@ class app:
         }
 
         self.page.theme = ft.Theme(font_family="TROPICAN")
-
         self.create_dialogs()
         self.create_layout()
 
@@ -189,16 +188,13 @@ class app:
         self.scene = ft.Image(col=12, src="images/scene.png")
         self.tiki = ft.Image(
             col={
-                "xs": 12,
-                "sm": 12,
+                "xs": 0,
+                "sm": 0,
                 "md": 3,
             },
             src="images/tiki.png",
-            fit=ft.ImageFit.CONTAIN,
             repeat=ft.ImageRepeat.NO_REPEAT,
-            height=200,
         )
-        print(self.page.window_height)
 
         self.victim = ft.Image(
             data=0,
@@ -237,6 +233,7 @@ class app:
             border_radius=ft.border_radius.all(20),
             bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
             padding=ft.padding.all(5),
+            margin=ft.margin.all(10),
             expand=True,
             content=ft.ResponsiveRow(
                 alignment=ft.MainAxisAlignment.CENTER,
@@ -342,7 +339,7 @@ class app:
                     ft.Container(
                         margin=ft.margin.only(top=50),
                         col={
-                            "xs": 12,
+                            "xs": 6,
                             "sm": 6,
                             "md": 6,
                         },
@@ -364,7 +361,7 @@ class app:
                     ft.Container(
                         margin=ft.margin.only(top=50),
                         col={
-                            "xs": 12,
+                            "xs": 6,
                             "sm": 6,
                             "md": 6,
                         },
@@ -416,9 +413,9 @@ class app:
             padding=ft.padding.all(0),
             margin=ft.margin.all(0),
             expand=True,
-            image_src="images/background.png",
             image_fit=ft.ImageFit.COVER,
-            image_repeat=ft.ImageRepeat.NO_REPEAT,
+            image_src="images/background.png",
+            image_repeat=ft.ImageRepeat.REPEAT_Y,
             content=ft.ResponsiveRow(
                 alignment=ft.MainAxisAlignment.CENTER,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
