@@ -170,7 +170,7 @@ class app:
             content=ft.Text(
                 value=letter,
                 color=ft.colors.WHITE,
-                size=30,
+                size=25,
                 text_align=ft.TextAlign.CENTER,
                 weight=ft.FontWeight.BOLD,
             ),
@@ -185,7 +185,14 @@ class app:
     # Método para criar o layout da página
     def create_layout(self):
         # Cria a imagem de fundo da cena
-        self.scene = ft.Image(col=12, src="images/scene.png")
+        self.scene = ft.Image(
+            col={
+                "xs": 0,
+                "sm": 0,
+                "md": 12,
+            },
+            src="images/scene.png",
+        )
         self.tiki = ft.Image(
             col={
                 "xs": 0,
@@ -212,8 +219,9 @@ class app:
 
         # Cria o contêiner do jogo
         self.game = ft.Container(
-            col={"xs": 10, "lg": 5},
-            padding=ft.padding.all(50),
+            col={"xs": 12, "lg": 6},
+            padding=ft.padding.all(5),
+            margin=ft.margin.all(0),
             content=ft.Column(
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -387,11 +395,11 @@ class app:
         abnt_keyboard_layout = "QWERTYUIOPASDFGHJKLÇZXCVBNM-"
 
         self.keyboard = ft.Container(
-            col={"xs": 10, "lg": 5},
+            col={"xs": 12, "lg": 6},
             image_src="images/keyboard.png",
             image_repeat=ft.ImageRepeat.NO_REPEAT,
             image_fit=ft.ImageFit.FILL,
-            padding=ft.padding.only(top=200, left=50, right=50, bottom=50),
+            padding=ft.padding.only(top=100, left=40, right=40, bottom=50),
             content=ft.ResponsiveRow(
                 columns=10,
                 alignment=ft.MainAxisAlignment.CENTER,
@@ -476,9 +484,10 @@ class app:
     # Método para criar o contêiner de uma letra da palavra a ser adivinhada
     def letter_to_guess(self, letter):
         return ft.Container(
+            padding=ft.padding.all(0),
+            margin=ft.margin.all(0),
             bgcolor=ft.colors.BROWN_700,
-            height=50,
-            width=50,
+            width=30,
             border_radius=ft.border_radius.all(5),
             content=ft.Text(
                 value=letter,
