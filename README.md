@@ -1,5 +1,8 @@
 # Jogo da Forca 🎮
 
+<img src="image.png"/>
+<img src="image2.png"/>
+
 Este é um jogo da forca simples desenvolvido em Python usando a biblioteca [Flet](https://github.com/ffont/flet) para criar a interface do usuário.
 
 ## Como Jogar 🕹️
@@ -14,7 +17,6 @@ Este é um jogo da forca simples desenvolvido em Python usando a biblioteca [Fle
 
 - Python 3.6 ou superior instalado no seu sistema.
 - Biblioteca Flet, que pode ser instalada usando o comando:
-
 
 ## Estrutura do Projeto 📁
 
@@ -33,4 +35,3 @@ Se você quiser contribuir para o projeto, sinta-se à vontade para abrir um pul
 ## Licença 📝
 
 Este projeto está licenciado sob a [Licença MIT](https://opensource.org/licenses/MIT).
-
