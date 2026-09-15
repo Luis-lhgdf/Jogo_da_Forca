@@ -1,0 +1,15 @@
+# Ambiente virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Saída do flet publish / pasta de build do workflow
+dist/
+build/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

@@ -1,0 +1,79 @@
+# Publica o Jogo da Forca (Flet) como site estático no GitHub Pages.
+# O app roda 100% no navegador via Pyodide (flet publish); não precisa de servidor.
+name: Deploy no GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Flet
+        run: pip install -r requirements.txt
+
+      # O flet publish empacota TUDO que estiver na pasta do script (README, prints,
+      # LICENSE...). Por isso montamos uma pasta só com o que o jogo precisa.
+      # O requirements.txt desta pasta é o que o Pyodide instala no navegador:
+      # precisa ser só o flet-pyodide, na MESMA versão do flet usado no build.
+      - name: Montar pasta de build
+        run: |
+          mkdir -p build
+          cp main.py build/
+          cp -r assets build/assets
+          FLET_VERSION=$(python -c "from importlib.metadata import version; print(version('flet'))")
+          echo "flet-pyodide==${FLET_VERSION}" > build/requirements.txt
+          cat build/requirements.txt
+
+      # --base-url precisa ser "/<nome-do-repo>/" porque o site fica em
+      # https://<usuario>.github.io/<nome-do-repo>/ e não na raiz do domínio.
+      - name: Publicar app Flet como site estático
+        run: |
+          flet publish build/main.py \
+            --assets assets \
+            --distpath dist \
+            --base-url "/${{ github.event.repository.name }}/" \
+            --route-url-strategy hash \
+            --app-name "Jogo da Forca" \
+            --app-short-name "Forca" \
+            --app-description "Jogo da Forca feito em Python com Flet"
+          touch dist/.nojekyll
+          ls -la dist
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

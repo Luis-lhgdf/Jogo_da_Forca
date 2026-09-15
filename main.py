@@ -1,10 +1,15 @@
-import flet as ft
 import random
+
+import flet as ft
 
 
 class app:
     def __init__(self, page: ft.Page):
         self.page = page  # Define a página onde o jogo será exibido
+        self.page.title = "Jogo da Forca"
+        # Sem margem em volta: o fundo ocupa a tela inteira (evita borda branca na web)
+        self.page.padding = 0
+        self.page.bgcolor = "#1B2A1F"
 
         self.themes = {
             "Animais": [
@@ -75,23 +80,28 @@ class app:
             ],
         }
 
+        # Faixa (mínimo, máximo) de letras da palavra em cada dificuldade.
+        # O nível difícil não tem teto: com o limite antigo de 12 letras, palavras
+        # como "Rio-de-Janeiro" ou "Paris-Saint-Germain" nunca eram sorteadas.
         self.difficulty_levels = {
             "Facil": (4, 6),
             "Medio": (6, 8),
-            "Dificil": (8, 12),
+            "Dificil": (8, 99),
         }
+
+        # Quantidade de erros permitidos (imagens hangman_0.png até hangman_7.png)
+        self.max_errors = 7
 
         self.selected_theme = None
         self.selected_difficulty = None
 
+        # Palavra provisória só para montar o layout; a real é sorteada em choose_word()
         self.choiced = "PYTHON"
 
-        # Lista de palavras disponíveis para o jogo
-        self.available_words = ["python", "flet", "programador", "aventureiro"]
-        # Escolhe uma palavra aleatória da lista e a converte para maiúsculas
-
+        # O arquivo se chama TROPICAN.TTF (extensão maiúscula). No GitHub Pages o
+        # servidor é Linux e diferencia maiúsculas, então o caminho precisa bater.
         self.page.fonts = {
-            "TROPICAN": "fonts/TROPICAN.ttf",
+            "TROPICAN": "fonts/TROPICAN.TTF",
         }
 
         self.page.theme = ft.Theme(font_family="TROPICAN")
@@ -116,7 +126,6 @@ class app:
     def create_dialog(self, title, content):
         return ft.AlertDialog(
             bgcolor=ft.colors.with_opacity(0.7, "#C39973"),
-            open=True,  # Define o diálogo como aberto
             title=ft.Text(
                 value=title,
                 text_align=ft.TextAlign.CENTER,
@@ -138,9 +147,7 @@ class app:
             actions=[  # Define as ações disponíveis no diálogo (botões)
                 ft.Container(
                     margin=ft.margin.only(top=50),
-                    col=5,
                     content=ft.Text(
-                        col=5,
                         text_align=ft.TextAlign.CENTER,
                         spans=[
                             ft.TextSpan(
@@ -159,13 +166,25 @@ class app:
             actions_alignment=ft.MainAxisAlignment.CENTER,  # Alinha as ações no centro do diálogo
         )
 
-    # Método para criar os elementos do jogo
+    # Método para abrir um diálogo (vitória ou game over)
+    def show_dialog(self, dialog):
+        dialog.open = True
+        self.page.dialog = dialog
+        self.page.update()
+
+    # Método para mostrar um aviso rápido na parte de baixo da tela
+    def show_message(self, message):
+        self.page.snack_bar = ft.SnackBar(
+            content=ft.Text(message, size=20),
+            open=True,
+        )
+        self.page.update()
 
     # Método para criar um botão do teclado virtual
     def create_keyboard_button(self, letter):
 
         return ft.Container(
-            col={"xs": 1, "lg": 1},
+            col=1,
             border_radius=ft.border_radius.all(5),
             content=ft.Text(
                 value=letter,
@@ -204,7 +223,7 @@ class app:
         )
 
         self.victim = ft.Image(
-            data=0,
+            data=0,  # Contador de erros
             src="images/hangman_0.png",
             repeat=ft.ImageRepeat.NO_REPEAT,
             height=300,
@@ -431,6 +450,8 @@ class app:
             ),
         )
 
+        # A tela do jogo rola quando não cabe na altura da janela (telas baixas,
+        # zoom de 125%/150% no Windows ou celular); antes o teclado ficava cortado.
         self.layout2 = ft.Container(
             padding=ft.padding.all(0),
             margin=ft.margin.all(0),
@@ -438,10 +459,16 @@ class app:
             image_src="images/background.png",
             image_fit=ft.ImageFit.COVER,
             image_repeat=ft.ImageRepeat.NO_REPEAT,
-            content=ft.ResponsiveRow(
-                alignment=ft.MainAxisAlignment.CENTER,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=self.view_game[1],
+            content=ft.Column(
+                expand=True,
+                scroll=ft.ScrollMode.AUTO,
+                controls=[
+                    ft.ResponsiveRow(
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=self.view_game[1],
+                    ),
+                ],
             ),
         )
 
@@ -450,36 +477,36 @@ class app:
 
     # Método para validar a letra clicada pelo usuário
     def validate_letter(self, e):
-        for pos, letter in enumerate(self.choiced):
-            if e.control.content.value == letter:  # Se a letra estiver correta
-                self.word.controls[pos] = self.letter_to_guess(letter=letter)
-                self.word.update()
+        letter = e.control.content.value
 
-        if e.control.content.value not in self.choiced:  # Se a letra estiver incorreta
-            self.victim.data += 1
-
-            if self.victim.data >= 7:  # Se o enforcado estiver completo
-                self.page.dialog = self.game_over
-                self.page.update()
-
-            errors = self.victim.data
-            self.victim.src = f"images/hangman_{errors}.png"
-            self.victim.update()
-
-        e.control.disabled = True  # Desativa o botão clicado
-        e.control.gradient = ft.LinearGradient(colors=[ft.colors.GREY])
+        # Desativa o botão clicado para a mesma letra não contar duas vezes
+        e.control.disabled = True
+        e.control.gradient = ft.LinearGradient(
+            begin=ft.alignment.top_center,
+            end=ft.alignment.bottom_center,
+            colors=[ft.colors.GREY, ft.colors.GREY_700],
+        )
         e.control.update()
 
-        if all(
-            button.content.value != "_" for button in self.word.controls
-        ):  # Se todas as letras foram preenchidas
-            self.check_win()
+        if letter in self.choiced:  # Se a letra estiver correta
+            for pos, char in enumerate(self.choiced):
+                if char == letter:
+                    self.word.controls[pos] = self.letter_to_guess(letter=char)
+            self.word.update()
+
+            if self.check_win():  # Se todas as letras foram preenchidas
+                self.show_dialog(self.winner)
+        else:  # Se a letra estiver incorreta
+            self.victim.data += 1
+            self.victim.src = f"images/hangman_{self.victim.data}.png"
+            self.victim.update()
+
+            if self.victim.data >= self.max_errors:  # Se o enforcado estiver completo
+                self.show_dialog(self.game_over)
 
     # Método para verificar se o jogador venceu
     def check_win(self):
-        if all(button.content.value != "_" for button in self.word.controls):
-            self.page.dialog = self.winner
-            self.page.update()
+        return all(button.content.value != "_" for button in self.word.controls)
 
     # Método para criar o contêiner de uma letra da palavra a ser adivinhada
     def letter_to_guess(self, letter):
@@ -500,20 +527,27 @@ class app:
 
     # Método para fechar o jogo
     def close_game(self, e):
-        self.page.window_destroy()  # Fecha a janela do jogo
+        if self.page.web:
+            # No navegador não dá para fechar a aba via código
+            self.show_message("Para sair, basta fechar esta aba do navegador.")
+        else:
+            self.page.window_destroy()  # Fecha a janela do jogo
 
+    # Método para voltar ao menu e reiniciar o jogo do zero
     def menu(self, e):
-        self.page.remove(self.layout2)  # Remove o layout atual
         self.page.dialog.open = False  # Fecha o diálogo atual
-        self.__init__(self.page)  # Reinicia o jogo
+        self.page.remove(self.layout2)  # Remove a tela do jogo
+        self.__init__(self.page)  # Recria menu, teclado e placar zerados
 
     def start_game_btn(self, e):
-        if self.selected_theme and self.selected_difficulty:
-            self.choose_word()
-            self.word.controls = [self.letter_to_guess("_") for _ in self.choiced]
-            self.page.remove(self.layout)
-            self.page.add(self.layout2)
-            print("Palavra escolhida:", self.choiced)  # Print para depuração
+        if not (self.selected_theme and self.selected_difficulty):
+            self.show_message("Escolha um tema e uma dificuldade para começar.")
+            return
+
+        self.choose_word()
+        self.word.controls = [self.letter_to_guess("_") for _ in self.choiced]
+        self.page.remove(self.layout)
+        self.page.add(self.layout2)
 
     def radiogroup_theme(self, e):
         self.selected_theme = e.control.value
@@ -522,18 +556,14 @@ class app:
         self.selected_difficulty = e.control.value
 
     def choose_word(self):
-        if self.selected_theme and self.selected_difficulty:
-            words = self.themes[self.selected_theme]
-            min_len, max_len = self.difficulty_levels[self.selected_difficulty]
-            filtered_words = [word for word in words if min_len <= len(word) <= max_len]
-            if filtered_words:
-                self.choiced = random.choice(filtered_words).upper()
-            else:
-                self.choiced = random.choice(words).upper()
-
-        print("Palavra escolhida no choose_word:", self.choiced)  # Print para depuração
+        words = self.themes[self.selected_theme]
+        min_len, max_len = self.difficulty_levels[self.selected_difficulty]
+        filtered_words = [word for word in words if min_len <= len(word) <= max_len]
+        # Se nenhuma palavra do tema couber na dificuldade, sorteia entre todas
+        self.choiced = random.choice(filtered_words or words).upper()
 
 
-# Função principal que inicia o jogo
-if __name__ == "__main__":
-    ft.app(target=app, assets_dir="assets")
+# Inicia o app. A chamada fica no nível do módulo, sem `if __name__ == "__main__"`,
+# porque na versão web (publicada com `flet publish`) o arquivo é importado como
+# módulo "main" pelo Pyodide e um bloco `__main__` nunca seria executado.
+ft.app(target=app, assets_dir="assets")
