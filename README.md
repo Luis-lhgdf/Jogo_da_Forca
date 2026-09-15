@@ -1,6 +1,6 @@
 # Jogo da Forca 🎮
 
-🔗 **Jogue online:** https://luis-lhgdf.github.io/Jogo_da_Forca/
+🔗 **Jogue online:** https://luis-lhgdf.github.io/jogo-da-forca/
 
 <img src="image.png"/>
 <img src="image2.png"/>
@@ -32,7 +32,7 @@ O workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages
 
 1. Instala o Flet (versão fixada em `requirements.txt`).
 2. Monta uma pasta `build/` só com `main.py` e `assets/`.
-3. Executa `flet publish` com `--base-url /Jogo_da_Forca/` (o site não fica na raiz do domínio) e `--route-url-strategy hash`.
+3. Executa `flet publish` com `--base-url /jogo-da-forca/` (o site não fica na raiz do domínio) e `--route-url-strategy hash`.
 4. Publica a pasta `dist/` no GitHub Pages.
 
 Nas configurações do repositório, em **Settings → Pages**, a fonte precisa estar como **GitHub Actions**.
@@ -42,7 +42,7 @@ Para testar o build web localmente:
 ```bash
 mkdir -p build && cp main.py build/ && cp -r assets build/assets
 echo "flet-pyodide==0.22.1" > build/requirements.txt
-flet publish build/main.py --assets assets --distpath dist --base-url /Jogo_da_Forca/ --route-url-strategy hash
+flet publish build/main.py --assets assets --distpath dist --base-url /jogo-da-forca/ --route-url-strategy hash
 ```
 
 ## Estrutura do Projeto 📁
